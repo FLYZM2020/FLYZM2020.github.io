@@ -18,7 +18,8 @@ body {
     display: flex; /* 使用flex布局  弹性盒子模型 */
     justify-content: left; /* 水平居中内容 */
     align-items: center; /* 垂直居中内容 */
-    padding: 20px 20px 20px 150px; /* 设置页面内边距 */
+    padding: 20px; /* 设置页面内边距 */
+    touch-action: manipulation; /* 优化触摸设备上的交互 */
 }
 
 /* 容器样式 - 包裹所有图标项的主容器 */
@@ -74,7 +75,7 @@ h1 {
 /* 网格布局 - 用于组织和排列图标项的布局方式 */
 .grid {
     display: grid; /* 使用网格布局 */
-    grid-template-columns: repeat(2, 1fr); /* 定义3列布局，每列占满剩余空间 */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 自适应列数，最小300px宽度 */
     gap: 30px; /* 网格项之间的间距 - 控制图标项之间的距离 */
 }
 
@@ -89,11 +90,14 @@ h1 {
     transition: transform 0.3s ease; /* 添加变换过渡动画 */
     overflow: visible; /* 设置溢出可见 */
     height: 200px; /* 设置固定高度 */
+    border-radius: 20px; /* 添加圆角，与玻璃效果匹配 */
+    user-select: none; /* 防止文本被选中 */
 }
 
 /* 图标项悬停效果 - 鼠标悬停时的动画效果 */
-.icon-item:hover {
-    transform: translateY(-10px); /* 鼠标悬停时向上移动10px - 创造浮动感 */
+.icon-item:hover,
+.icon-item:active {
+    transform: translateY(-10px); /* 鼠标悬停或触摸时向上移动10px - 创造浮动感 */
 }
 
 /* 图标背景玻璃矩形 - 实现玻璃拟态效果的关键样式 */
@@ -126,6 +130,7 @@ h1 {
     position: absolute; /* 绝对定位 - 相对于父元素定位 */
     top: 10px; /* 上边距10px */
     left: 20px; /* 左边距20px */
+    pointer-events: none; /* 确保触摸事件传递到父元素 */
 }
 
 /* 图片悬停效果 - 鼠标悬停在图标项上时图片的变化效果 */
@@ -221,31 +226,120 @@ h1 {
     h1 {
         font-size: 2rem; /* 进一步减小标题字体大小 - 适应超小屏幕 */
         margin-bottom: 30px; /* 减小标题下方外边距 - 紧凑布局 */
+        text-align: center; /* 居中对齐标题 */
     }
     
     .container {
         padding: 20px 10px; /* 减小内边距 - 适应超小屏幕空间限制 */
+        text-align: center; /* 居中对齐内容 */
     }
     
     .icon-item {
-        height: 160px; /* 减小图标项高度 - 适应超小屏幕 */
+        height: auto; /* 自动高度 - 适应内容 */
+        min-height: 160px; /* 最小高度 */
+        padding: 15px;
+        flex-direction: column; /* 垂直布局 */
+        text-align: center;
     }
     
     .icon-item img {
         width: 120px; /* 减小图片尺寸 - 适应超小屏幕 */
         height: 120px;
-        left: 10px; /* 调整图片位置 - 贴近边缘留出更多空间 */
+        position: relative;
+        left: auto; /* 重置位置 */
+        top: auto; /* 重置位置 */
+        margin-bottom: 15px;
     }
     
     .icon-name {
-        left: 140px; /* 调整名称位置 - 适应图片尺寸变化 */
+        position: relative;
+        left: auto; /* 重置位置 */
+        top: auto; /* 重置位置 */
         font-size: 18px; /* 减小字体大小 - 提高超小屏幕可读性 */
+        margin-bottom: 10px;
     }
     
     .icon-desc {
-        left: 140px; /* 调整描述位置 - 与图标名称对齐 */
+        position: relative;
+        left: auto; /* 重置位置 */
+        top: auto; /* 重置位置 */
+        right: auto; /* 重置位置 */
         font-size: 14px; /* 减小字体大小 - 提高超小屏幕可读性 */
-        right: 10px; /* 调整右边距 - 控制文本宽度 */
+        margin-bottom: 10px;
+    }
+    
+    /* 为小屏幕优化玻璃背景 */
+    .glass-bg {
+        border-radius: 15px; /* 减小圆角 */
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); /* 优化阴影 */
+    }
+    
+    /* 优化canvas在小屏幕的显示 */
+    canvas {
+        width: 100%;
+        height: auto;
+        max-height: 100vh;
+    }
+    
+    /* 小屏幕上的滚动占位符 */
+    .scroll-placeholder {
+        height: 300vh; /* 减小高度以适应移动设备 */
+    }
+}
+
+/* 适配小屏幕手机（最大宽度480px） */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.8rem; /* 进一步减小标题字体大小 */
+    }
+    
+    .icon-item {
+        padding: 10px;
+    }
+    
+    .icon-item img {
+        width: 100px; /* 进一步减小图片尺寸 */
+        height: 100px;
+    }
+    
+    .icon-name {
+        font-size: 16px; /* 进一步减小字体大小 */
+    }
+    
+    .icon-desc {
+        font-size: 13px; /* 进一步减小字体大小 */
+        line-height: 1.5; /* 调整行高以提高可读性 */
+    }
+    
+    /* 优化触摸目标大小 */
+    .icon-item {
+        min-height: 140px;
+    }
+}
+
+/* 适配横屏模式 */
+@media (max-height: 500px) and (orientation: landscape) {
+    .grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .icon-item {
+        height: 120px;
+    }
+    
+    .icon-item img {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .icon-name {
+        font-size: 16px;
+    }
+    
+    .icon-desc {
+        font-size: 12px;
+        line-height: 1.4;
     }
 }
 /* ————————————————————————————————————————————————————————————————————————————————————- */
@@ -257,4 +351,6 @@ canvas {
     transform: translate(-50%, -50%); /* 平移调整 - 使元素完全居中 */
     max-width: 100vw; /* 最大宽度 - 不超过视口宽度 */
     max-height: 100vh; /* 最大高度 - 不超过视口高度 */
+    width: 100%; /* 宽度适应屏幕 */
+    height: auto; /* 高度自适应，保持比例 */
 }
