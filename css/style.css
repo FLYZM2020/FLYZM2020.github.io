@@ -1,0 +1,260 @@
+全局样式重置
+/* 全局重置样式 - 清除浏览器默认样式，确保跨浏览器一致性 */
+* {
+    margin: 0; /* 重置所有元素的外边距 */
+    padding: 0; /* 重置所有元素的内边距 */
+    box-sizing: border-box; /* 使用边框盒模型计算元素尺寸 - width和height包含padding和border */
+}
+
+/* 页面主体样式 */
+body {
+    font-family: 'Microsoft YaHei', sans-serif; /* 设置中文字体 使用'sans-serif'作为备选字体，当系统中没有安装微软雅黑时，会使用系统默认的无衬线字体代替。*/
+    /* background-color: #f5f5f5; 设置页面背景色为浅灰色 */
+    background-image: url('../jpg/背景.jpg');
+    background-size: cover; /* 背景图片覆盖整个元素 */
+    background-position: center; /* 背景图片居中对齐 */
+    background-attachment: fixed; /* 固定背景图片，不随页面滚动而移动 */
+    min-height: 100vh; /* 确保页面至少占满整个视口高度 height:100vh == height:100%;  */
+    display: flex; /* 使用flex布局  弹性盒子模型 */
+    justify-content: left; /* 水平居中内容 */
+    align-items: center; /* 垂直居中内容 */
+    padding: 20px 20px 20px 150px; /* 设置页面内边距 */
+}
+
+/* 容器样式 - 包裹所有图标项的主容器 */
+.container {
+    max-width: 1200px;
+    width: 100%;
+    text-align: left;
+    padding: 30px 20px;
+    position: relative;
+    margin: 0 auto;
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+/* ______________________________________________________________________________________ */
+/* 占位元素样式 - 确保container在页面底部开始滚动 */
+.scroll-placeholder {
+    height: 400vh; /* 占据4个视口高度的空间 */
+    background: transparent; /* 透明背景 */
+}
+
+/* Canvas容器样式 */
+.div-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+
+/* .body-canvas {
+    width: 100%;
+    height: 100%;
+    z-index:1 ;
+} */
+
+
+/* ______________________________________________________________________________________ */
+
+
+/* 标题样式 - 页面主标题的样式设置 */
+h1 {
+    color: #333; /* 设置标题颜色为深灰色 */
+    margin-bottom: 50px; /* 标题下方外边距 - 与下方内容保持距离 */
+    font-size: 3rem; /* 标题字体大小 */
+    font-weight: bold; /* 字体粗细 - 加粗显示 */
+}
+
+/* 网格布局 - 用于组织和排列图标项的布局方式 */
+.grid {
+    display: grid; /* 使用网格布局 */
+    grid-template-columns: repeat(2, 1fr); /* 定义3列布局，每列占满剩余空间 */
+    gap: 30px; /* 网格项之间的间距 - 控制图标项之间的距离 */
+}
+
+/* 图标项容器样式 */
+/* 图标项容器样式 - 每个图标的主容器 */
+.icon-item {
+    position: relative; /* 设置相对定位，为绝对定位的子元素提供参考 */
+    display: flex; /* 使用flex布局 */
+    align-items: center; /* 子元素垂直居中 */
+    cursor: pointer; /* 鼠标悬停时显示指针光标 */
+    padding: 0; /* 重置内边距 */
+    transition: transform 0.3s ease; /* 添加变换过渡动画 */
+    overflow: visible; /* 设置溢出可见 */
+    height: 200px; /* 设置固定高度 */
+}
+
+/* 图标项悬停效果 - 鼠标悬停时的动画效果 */
+.icon-item:hover {
+    transform: translateY(-10px); /* 鼠标悬停时向上移动10px - 创造浮动感 */
+}
+
+/* 图标背景玻璃矩形 - 实现玻璃拟态效果的关键样式 */
+.glass-bg {
+    position: absolute; /* 绝对定位 - 相对于父元素(.icon-item)定位 */
+    top: 0; /* 上边距为0 */
+    left: 0; /* 左边距为0 */
+    right: 0; /* 右边距为0 - 拉伸元素填满整个父容器宽度 */
+    bottom: 0; /* 下边距为0 - 拉伸元素填满整个父容器高度 */
+    
+    /* 玻璃效果核心样式 */
+    background: rgba(255, 255, 255, 0.3); /* 半透明白色背景 - 30%不透明度 */
+    backdrop-filter: blur(15px); /* 背景模糊效果 - 创建磨砂玻璃质感 */
+    -webkit-backdrop-filter: blur(15px); /* WebKit浏览器兼容前缀 */
+    
+    border-radius: 20px; /* 圆角效果 - 20px圆角增强现代感 */
+    border: 1px solid rgba(255, 255, 255, 0.5); /* 半透明边框 - 增强玻璃边缘清晰度 */
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2); /* 阴影效果 - 增强深度感 */
+    
+    z-index: 0; /* 堆叠顺序 - 确保背景在内容下方 */
+}
+
+/* 图标图片样式 - 图标的显示样式设置 */
+.icon-item img {
+    width: 180px; /* 图片宽度 */
+    height: 180px; /* 图片高度 */
+    object-fit: contain; /* 图片适应方式 - 保持原始比例并完整显示 */
+    z-index: 2; /* 堆叠顺序 - 确保图片显示在背景之上 */
+    transition: filter 0.3s ease, transform 0.3s ease; /* 过渡动画 - 为悬停效果添加平滑过渡 */
+    position: absolute; /* 绝对定位 - 相对于父元素定位 */
+    top: 10px; /* 上边距10px */
+    left: 20px; /* 左边距20px */
+}
+
+/* 图片悬停效果 - 鼠标悬停在图标项上时图片的变化效果 */
+.icon-item:hover img {
+    filter: brightness(1.1); /* 亮度调整 - 鼠标悬停时图片亮度增加10% */
+    transform: scale(1.05); /* 缩放效果 - 鼠标悬停时图片放大至1.05倍 */
+}
+
+/* 图标名称显示 - 图标下方名称的样式设置 */
+.icon-name {
+    position: absolute; /* 绝对定位 - 相对于父元素定位 */
+    top: 20px; /* 上边距20px */
+    left: 220px; /* 左边距220px - 在图片右侧显示 */
+    font-size: 24px; /* 字体大小 */
+    font-weight: bold; /* 字体粗细 - 加粗显示 */
+    color: #333; /* 文字颜色 - 深灰色 */
+    z-index: 2; /* 堆叠顺序 - 确保文字显示在背景之上 */
+}
+
+/* 图标介绍文本 - 图标描述文字的样式设置 */
+.icon-desc {
+    position: absolute; /* 绝对定位 - 相对于父元素定位 */
+    top: 60px; /* 上边距60px - 在图标名称下方显示 */
+    left: 220px; /* 左边距220px - 与图标名称对齐 */
+    right: 20px; /* 右边距20px - 控制文本宽度 */
+    font-size: 18px; /* 字体大小 */
+    color: #666; /* 文字颜色 - 灰色 */
+    line-height: 1.6; /* 行高 - 增强可读性 */
+    z-index: 2; /* 堆叠顺序 - 确保文字显示在背景之上 */
+}
+
+/* 响应式设计 - 适配中等尺寸设备（最大宽度968px） */
+@media (max-width: 968px) {
+    .container {
+        max-width: 90%; /* 减小容器最大宽度 - 适应较小屏幕 */
+    }
+    
+    .grid {
+        gap: 30px; /* 减小网格项之间的间距 - 适应较小屏幕空间 */
+    }
+    
+    .icon-item {
+        height: 180px; /* 减小图标项高度 - 适应较小屏幕 */
+    }
+    
+    .icon-item img {
+        width: 150px; /* 减小图片尺寸 - 适应较小屏幕 */
+        height: 150px;
+    }
+    
+    .icon-name {
+        left: 180px; /* 调整名称位置 - 适应图片尺寸变化 */
+        font-size: 20px; /* 减小字体大小 - 提高小屏幕可读性 */
+    }
+    
+    .icon-desc {
+        left: 180px; /* 调整描述位置 - 适应图片尺寸变化 */
+        font-size: 16px; /* 减小字体大小 - 提高小屏幕可读性 */
+    }
+}
+
+/* 响应式设计 - 适配小屏幕设备（最大宽度768px） */
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr; /* 在小屏幕上改为单列布局 - 优化垂直滚动体验 */
+        gap: 25px; /* 进一步减小间距 - 适应小屏幕空间限制 */
+    }
+    
+    h1 {
+        font-size: 2.5rem; /* 减小标题字体大小 - 提高小屏幕可读性 */
+    }
+    
+    .icon-item {
+        height: 200px; /* 恢复图标项高度 - 为单列布局提供充足空间 */
+    }
+    
+    .icon-item img {
+        width: 160px; /* 恢复图片尺寸 - 在单列布局中保持适当比例 */
+        height: 160px;
+    }
+    
+    .icon-name {
+        left: 200px; /* 调整名称位置 - 适应图片尺寸变化 */
+    }
+    
+    .icon-desc {
+        left: 200px; /* 调整描述位置 - 与图标名称对齐 */
+    }
+}
+
+/* 响应式设计 - 适配超小屏幕设备（最大宽度600px） */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 2rem; /* 进一步减小标题字体大小 - 适应超小屏幕 */
+        margin-bottom: 30px; /* 减小标题下方外边距 - 紧凑布局 */
+    }
+    
+    .container {
+        padding: 20px 10px; /* 减小内边距 - 适应超小屏幕空间限制 */
+    }
+    
+    .icon-item {
+        height: 160px; /* 减小图标项高度 - 适应超小屏幕 */
+    }
+    
+    .icon-item img {
+        width: 120px; /* 减小图片尺寸 - 适应超小屏幕 */
+        height: 120px;
+        left: 10px; /* 调整图片位置 - 贴近边缘留出更多空间 */
+    }
+    
+    .icon-name {
+        left: 140px; /* 调整名称位置 - 适应图片尺寸变化 */
+        font-size: 18px; /* 减小字体大小 - 提高超小屏幕可读性 */
+    }
+    
+    .icon-desc {
+        left: 140px; /* 调整描述位置 - 与图标名称对齐 */
+        font-size: 14px; /* 减小字体大小 - 提高超小屏幕可读性 */
+        right: 10px; /* 调整右边距 - 控制文本宽度 */
+    }
+}
+/* ————————————————————————————————————————————————————————————————————————————————————- */
+/* Canvas 背景样式 - 页面背景动画的画布元素 */
+canvas {
+    position: fixed; /* 固定定位 - 始终保持在视口固定位置 */
+    left: 50%; /* 左边缘居中 */
+    top: 50%; /* 上边缘居中 */
+    transform: translate(-50%, -50%); /* 平移调整 - 使元素完全居中 */
+    max-width: 100vw; /* 最大宽度 - 不超过视口宽度 */
+    max-height: 100vh; /* 最大高度 - 不超过视口高度 */
+}
