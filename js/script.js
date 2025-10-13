@@ -27,28 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 glassBg.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.2)'; // 恢复原始阴影效果
             }
         });
-        
-        // 触摸开始事件 - 为移动设备添加touchstart事件监听器
-        item.addEventListener('touchstart', function(e) {
-            e.preventDefault(); // 防止默认行为，如页面滚动
-            const glassBg = item.querySelector('.glass-bg');
-            if (glassBg) {
-                glassBg.style.boxShadow = '0 15px 45px rgba(0, 0, 0, 0.25)'; // 增强阴影效果
-            }
-        });
-        
-        // 触摸结束事件 - 为移动设备添加touchend事件监听器
-        item.addEventListener('touchend', function() {
-            const glassBg = item.querySelector('.glass-bg');
-            if (glassBg) {
-                glassBg.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.2)'; // 恢复原始阴影效果
-            }
-        });
-        
-        // 触摸移动事件 - 防止触摸移动时触发意外行为
-        item.addEventListener('touchmove', function(e) {
-            e.preventDefault(); // 防止页面滚动
-        });
     });
 });
 
@@ -150,107 +128,67 @@ const container = document.querySelector('.container');
 // 添加窗口滚动事件监听器
 // 当用户滚动页面时，根据滚动位置更新canvas上显示的图片
 window.addEventListener("scroll", () => {
-    // 获取当前页面滚动距离（从页面顶部到当前视口顶部的距离）
-    const scrollTop = html.scrollTop || document.body.scrollTop;
-    
-    // 计算页面可滚动的最大距离
-    // scrollHeight是整个文档的高度，window.innerHeight是当前视口的高度
-    const maxScrollTop = (html.scrollHeight || document.body.scrollHeight) - window.innerHeight;
-    
-    // 计算滚动比例（0-1之间的值）
-    // 表示当前滚动位置相对于整个可滚动范围的比例
-    const scrollFraction = scrollTop / maxScrollTop;
-    
-    // 根据滚动比例计算应该显示的图片索引
-    // 使用Math.min确保索引不超过图片总数
-    // 使用Math.ceil确保索引为整数
-    const frameIndex = Math.min(
-        frameCount,
-        Math.ceil(scrollFraction * frameCount)
-    );
+  // 获取当前页面滚动距离（从页面顶部到当前视口顶部的距离）
+  const scrollTop = html.scrollTop;
+  
+  // 计算页面可滚动的最大距离
+  // scrollHeight是整个文档的高度，window.innerHeight是当前视口的高度
+  const maxScrollTop = html.scrollHeight - window.innerHeight;
+  
+  // 计算滚动比例（0-1之间的值）
+  // 表示当前滚动位置相对于整个可滚动范围的比例
+  const scrollFraction = scrollTop / maxScrollTop;
+  
+  // 根据滚动比例计算应该显示的图片索引
+  // 使用Math.min确保索引不超过图片总数
+  // 使用Math.ceil确保索引为整数
+  const frameIndex = Math.min(
+    frameCount,
+    Math.ceil(scrollFraction * frameCount)
+  );
 
-    // 使用requestAnimationFrame确保平滑的动画效果
-    // 索引为实际需要显示的图片索引（从1开始）
-    requestAnimationFrame(() => updateImage(frameIndex));
+  // 使用requestAnimationFrame确保平滑的动画效果
+  // 索引为实际需要显示的图片索引（从1开始）
+  requestAnimationFrame(() => updateImage(frameIndex));
+  
+  // 当图片循环完毕（滚动到最后一帧）时显示容器并隐藏canvas
+  // 条件判断：当frameIndex等于最大帧数-1时，表示已经滚动到最后一帧
+  if (frameIndex === frameCount - 1) {
+    // 显示主内容容器：设置不透明度为1（完全可见），并将可见性设置为visible
+    container.style.opacity = '1';
+    container.style.visibility = 'visible';
+    container.style.position = 'relative'; // 确保容器为相对定位，允许滚动
     
-    // 当图片循环完毕（滚动到最后一帧）时显示容器并隐藏canvas
-    // 条件判断：当frameIndex等于最大帧数-1时，表示已经滚动到最后一帧
-    if (frameIndex === frameCount - 1) {
-        // 显示主内容容器：设置不透明度为1（完全可见），并将可见性设置为visible
-        container.style.opacity = '1';
-        container.style.visibility = 'visible';
-        container.style.position = 'relative'; // 确保容器为相对定位，允许滚动
-        
-        // 隐藏canvas元素：设置不透明度为0（完全透明），并将可见性设置为hidden
-        canvas.style.opacity = '0';
-        canvas.style.visibility = 'hidden';
-        
-        // 查找并准备隐藏canvas的父容器
-        // 使用document.querySelector获取class为'div-canvas'的元素，这是canvas的容器元素
-        const divCanvas = document.querySelector('.div-canvas');
-        if (divCanvas) {
-            // 设置divCanvas容器的不透明度为0 - 使其完全透明
-            divCanvas.style.opacity = '0';
-            
-            // 设置divCanvas容器的可见性为hidden - 使其完全隐藏且不占用页面布局空间
-            divCanvas.style.visibility = 'hidden';
-        }
-        
-        // 在canvas滑动结束后隐藏scroll-placeholder元素，使其不再占位
-        const scrollPlaceholder = document.querySelector('.scroll-placeholder');
-        if (scrollPlaceholder) {
-            scrollPlaceholder.style.display = 'none'; // 完全移除元素在文档流中的占位
-        }
-        
-        // 重置body样式以允许内容自然滚动，但保持背景固定
-        document.body.style.height = 'auto'; // 重置body高度，允许内容自然滚动
-        document.body.style.display = 'block'; // 重置display属性，允许正常文档流
-        document.body.style.justifyContent = 'normal'; // 重置justify-content
-        document.body.style.alignItems = 'normal'; // 重置align-items
-        document.body.style.padding = '20px'; // 调整内边距
+    // 隐藏canvas元素：设置不透明度为0（完全透明），并将可见性设置为hidden
+    canvas.style.opacity = '0';
+    canvas.style.visibility = 'hidden';
+    
+    // 查找并准备隐藏canvas的父容器
+    // 使用document.querySelector获取class为'div-canvas'的元素，这是canvas的容器元素
+    const divCanvas = document.querySelector('.div-canvas');
+    if (divCanvas) {
+      // 设置divCanvas容器的不透明度为0 - 使其完全透明
+      divCanvas.style.opacity = '0';
+      
+      // 设置divCanvas容器的可见性为hidden - 使其完全隐藏且不占用页面布局空间
+      divCanvas.style.visibility = 'hidden';
     }
     
+    // 在canvas滑动结束后隐藏scroll-placeholder元素，使其不再占位
+    const scrollPlaceholder = document.querySelector('.scroll-placeholder');
+    if (scrollPlaceholder) {
+      scrollPlaceholder.style.display = 'none'; // 完全移除元素在文档流中的占位
+    }
+    
+    // 重置body样式以允许内容自然滚动，但保持背景固定
+    document.body.style.height = 'auto'; // 重置body高度，允许内容自然滚动
+    document.body.style.display = 'block'; // 重置display属性，允许正常文档流
+    document.body.style.justifyContent = 'normal'; // 重置justify-content
+    document.body.style.alignItems = 'normal'; // 重置align-items
+    document.body.style.padding = '20px'; // 调整内边距
+  }
+  
 });
-
-// 为移动设备添加触摸滚动优化
-let touchStartY = 0;
-let touchEndY = 0;
-
-// 触摸开始事件
-window.addEventListener('touchstart', function(e) {
-    touchStartY = e.changedTouches[0].screenY;
-}, { passive: true });
-
-// 触摸结束事件
-window.addEventListener('touchend', function(e) {
-    touchEndY = e.changedTouches[0].screenY;
-    handleSwipe();
-}, { passive: true });
-
-// 处理滑动手势
-function handleSwipe() {
-    const swipeThreshold = 50; // 滑动阈值，超过这个值才被认为是有效滑动
-    const swipeDistance = touchStartY - touchEndY;
-    
-    // 向下滑动（显示更多内容）
-    if (swipeDistance > swipeThreshold) {
-        // 可以在这里添加额外的滑动处理逻辑
-    }
-    
-    // 向上滑动（显示更少内容）
-    if (swipeDistance < -swipeThreshold) {
-        // 可以在这里添加额外的滑动处理逻辑
-    }
-}
-
-// 防止移动设备上的页面过度滚动效果
-window.addEventListener('touchmove', function(e) {
-    // 仅在canvas动画期间阻止默认行为，避免影响内容滚动
-    const canvasVisible = canvas.style.visibility !== 'hidden';
-    if (canvasVisible) {
-        e.preventDefault();
-    }
-}, { passive: false });
 
 // 调用预加载函数 - 在页面加载时预加载所有图片
 // 这确保当用户开始滚动页面时，所有需要显示的图片已经加载完成，提供更流畅的用户体验
