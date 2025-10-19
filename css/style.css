@@ -28,7 +28,7 @@ body {
     text-align: left;
     padding: 30px 20px;
     position: relative;
-    margin: 0 auto;
+    margin: 0 100px;
     z-index: 10;
     opacity: 0;
     visibility: hidden;
