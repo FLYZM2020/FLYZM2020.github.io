@@ -67,9 +67,32 @@ const preloadImages = () => {
   }
 };
 
-// 设置Canvas尺寸 - 宽度1158像素，高度770像素
-canvas.width = 1158;
-canvas.height = 770;
+// 初始化和设置Canvas尺寸的函数
+const setCanvasDimensions = () => {
+  // 获取视口尺寸
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  
+  // 定义canvas的最大尺寸限制
+  const maxWidth = 1158;
+  const maxHeight = 770;
+  
+  // 计算缩放比例，确保canvas适应屏幕但不超过原始尺寸
+  const scaleX = viewportWidth / maxWidth;
+  const scaleY = viewportHeight / maxHeight;
+  const scale = Math.min(1, scaleX, scaleY); // 不放大，只缩小
+  
+  // 设置canvas实际尺寸
+  canvas.width = maxWidth * scale;
+  canvas.height = maxHeight * scale;
+  
+  // 设置canvas显示尺寸（CSS）
+  canvas.style.width = `${canvas.width}px`;
+  canvas.style.height = `${canvas.height}px`;
+};
+
+// 调用初始化Canvas尺寸的函数
+setCanvasDimensions();
 
 // 初始化第一张图片
 const loadInitialImage = () => {
@@ -79,15 +102,42 @@ const loadInitialImage = () => {
     // 先清除整个canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
     
-    // 计算图片居中的坐标
-    const centerX = (canvas.width - img.width) / 2;
-    const centerY = (canvas.height - img.height) / 2;
+    // 计算图片居中并按比例缩放
+    const scale = Math.min(
+      canvas.width / img.width,
+      canvas.height / img.height
+    );
+    const scaledWidth = img.width * scale;
+    const scaledHeight = img.height * scale;
+    
+    // 计算居中坐标
+    const centerX = (canvas.width - scaledWidth) / 2;
+    const centerY = (canvas.height - scaledHeight) / 2;
     
     // 在canvas上居中绘制初始图片
-    context.drawImage(img, centerX, centerY);
+    context.drawImage(img, centerX, centerY, scaledWidth, scaledHeight);
     currentImage = img;
   };
 };
+
+// 添加窗口大小变化事件监听，实现多端适配
+window.addEventListener('resize', () => {
+  // 重新设置canvas尺寸
+  setCanvasDimensions();
+  
+  // 重新加载当前显示的图片，确保在新尺寸下正确显示
+  const currentFrameIndex = Math.min(
+    frameCount,
+    Math.ceil((html.scrollTop / (html.scrollHeight - window.innerHeight)) * frameCount)
+  );
+  
+  // 如果已经初始化过图片，重新加载当前帧
+  if (currentImage) {
+    updateImage(currentFrameIndex);
+  } else {
+    loadInitialImage();
+  }
+});
 
 // 调用初始图片加载函数
 loadInitialImage();
@@ -105,14 +155,20 @@ loadInitialImage();
           // 先清除整个canvas，确保显示下一张图片时隐藏上一张
           context.clearRect(0, 0, canvas.width, canvas.height);
           
-          // 计算图片居中的坐标
-          // x坐标 = (canvas宽度 - 图片宽度) / 2
-          // y坐标 = (canvas高度 - 图片高度) / 2
-          const centerX = (canvas.width - newImage.width) / 2;
-          const centerY = (canvas.height - newImage.height) / 2;
+          // 计算图片居中并按比例缩放
+          const scale = Math.min(
+            canvas.width / newImage.width,
+            canvas.height / newImage.height
+          );
+          const scaledWidth = newImage.width * scale;
+          const scaledHeight = newImage.height * scale;
+          
+          // 计算居中坐标
+          const centerX = (canvas.width - scaledWidth) / 2;
+          const centerY = (canvas.height - scaledHeight) / 2;
           
           // 在canvas上居中绘制新图片
-          context.drawImage(newImage, centerX, centerY);
+          context.drawImage(newImage, centerX, centerY, scaledWidth, scaledHeight);
           
           // 更新当前图片引用
           currentImage = newImage;
