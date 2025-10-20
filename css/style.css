@@ -161,6 +161,13 @@ h1 {
     color: #666; /* 文字颜色 - 灰色 */
     line-height: 1.6; /* 行高 - 增强可读性 */
     z-index: 2; /* 堆叠顺序 - 确保文字显示在背景之上 */
+    overflow: hidden; /* 隐藏超出部分 */
+    text-overflow: ellipsis; /* 超出部分显示省略号 */
+    display: -webkit-box; /* 设置为弹性盒模型 */
+    -webkit-line-clamp: 3; /* 限制显示3行 */
+    -webkit-box-orient: vertical; /* 设置垂直方向 */
+    white-space: normal; /* 允许换行 */
+    max-height: 80px; /* 设置最大高度 */
 }
 
 /* 响应式设计 - 适配中等尺寸设备（最大宽度968px） */
@@ -219,6 +226,13 @@ h1 {
     
     .icon-desc {
         left: 200px; /* 调整描述位置 - 与图标名称对齐 */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        white-space: normal;
+        max-height: 80px;
     }
 }
 
@@ -252,6 +266,13 @@ h1 {
         left: 140px; /* 调整描述位置 - 与图标名称对齐 */
         font-size: 14px; /* 减小字体大小 - 提高超小屏幕可读性 */
         right: 10px; /* 调整右边距 - 控制文本宽度 */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        white-space: normal;
+        max-height: 70px;
     }
 }
 /* ————————————————————————————————————————————————————————————————————————————————————- */
@@ -266,4 +287,65 @@ canvas {
     width: auto; /* 自动宽度 */
     height: auto; /* 自动高度 */
     object-fit: contain; /* 保持比例 */
+}
+
+/* 适配小屏幕手机（最大宽度480px） */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.8rem; /* 进一步减小标题字体大小 */
+    }
+    
+    .icon-item {
+        height: auto;
+        min-height: 140px;
+        padding: 10px;
+    }
+    
+    .icon-item img {
+        width: 100px; /* 进一步减小图片尺寸 */
+        height: 100px;
+    }
+    
+    .icon-name {
+        left: 120px;
+        font-size: 16px; /* 进一步减小字体大小 */
+    }
+    
+    .icon-desc {
+        left: 120px;
+        font-size: 13px; /* 进一步减小字体大小 */
+        line-height: 1.5; /* 调整行高以提高可读性 */
+        max-height: 60px;
+        -webkit-line-clamp: 2; /* 限制显示2行 */
+    }
+}
+
+/* 适配横屏模式 */
+@media (max-height: 500px) and (orientation: landscape) {
+    .grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .icon-item {
+        height: 120px;
+    }
+    
+    .icon-item img {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .icon-name {
+        left: 100px;
+        font-size: 16px;
+    }
+    
+    .icon-desc {
+        left: 100px;
+        font-size: 12px; /* 减小字体大小 */
+        line-height: 1.4; /* 调整行高 */
+        max-height: 50px;
+        -webkit-line-clamp: 2; /* 限制显示2行 */
+    }
 }
