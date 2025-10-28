@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         previewContainer.style.alignItems = 'center';
         previewContainer.style.zIndex = '9999';
         previewContainer.style.opacity = '0';
+        // 平滑过渡
         previewContainer.style.transition = 'opacity 0.3s ease';
         
         // 创建预览图片
