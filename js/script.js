@@ -4,8 +4,70 @@ document.addEventListener('DOMContentLoaded', function() {
     // 获取所有图标项 - 使用querySelectorAll选择器获取页面上所有带有.icon-item类的元素
     const iconItems = document.querySelectorAll('.icon-item');
     
+    // 存储每个图标的点击状态
+    const clickStates = new Map();
+    // 存储当前预览的图片信息
+    let currentPreview = null;
+    
+    // 创建图片预览层的函数
+    function createImagePreview(imgSrc) {
+        // 创建预览容器
+        const previewContainer = document.createElement('div');
+        previewContainer.style.position = 'fixed';
+        previewContainer.style.top = '0';
+        previewContainer.style.left = '0';
+        previewContainer.style.width = '100%';
+        previewContainer.style.height = '100%';
+        previewContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        previewContainer.style.display = 'flex';
+        previewContainer.style.justifyContent = 'center';
+        previewContainer.style.alignItems = 'center';
+        previewContainer.style.zIndex = '9999';
+        previewContainer.style.opacity = '0';
+        previewContainer.style.transition = 'opacity 0.3s ease';
+        
+        // 创建预览图片
+        const previewImg = document.createElement('img');
+        previewImg.src = imgSrc;
+        previewImg.style.maxWidth = '50%'; // 屏幕宽度的一半，这样面积就是四分之一
+        previewImg.style.maxHeight = '50%'; // 屏幕高度的一半，这样面积就是四分之一
+        previewImg.style.objectFit = 'contain';
+        previewImg.style.transform = 'scale(0.8)';
+        previewImg.style.transition = 'transform 0.3s ease';
+        
+        // 添加到容器
+        previewContainer.appendChild(previewImg);
+        document.body.appendChild(previewContainer);
+        
+        // 触发过渡效果
+        setTimeout(() => {
+            previewContainer.style.opacity = '1';
+            previewImg.style.transform = 'scale(1)';
+        }, 10);
+        
+        return { container: previewContainer, image: previewImg };
+    }
+    
+    // 移除图片预览层的函数
+    function removeImagePreview() {
+        if (currentPreview) {
+            currentPreview.container.style.opacity = '0';
+            currentPreview.image.style.transform = 'scale(0.8)';
+            
+            setTimeout(() => {
+                if (currentPreview.container.parentNode) {
+                    document.body.removeChild(currentPreview.container);
+                }
+                currentPreview = null;
+            }, 300);
+        }
+    }
+    
     // 为每个图标项添加事件监听 - 使用forEach方法遍历所有获取到的图标元素
     iconItems.forEach(item => {
+        // 初始化点击状态为false（未被放大）
+        clickStates.set(item, false);
+        
         // 鼠标悬停事件 - 为图标项添加mouseenter事件监听器，当鼠标悬停在图标上时触发
         item.addEventListener('mouseenter', function() {
             // 获取当前图标的背景玻璃矩形元素
@@ -25,6 +87,92 @@ document.addEventListener('DOMContentLoaded', function() {
             // 恢复背景玻璃矩形的原始效果
             if (glassBg) {
                 glassBg.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.2)'; // 恢复原始阴影效果
+            }
+        });
+        
+        // 添加点击事件处理
+        item.addEventListener('click', function(e) {
+            // 获取父级<a>标签
+            const parentLink = item.closest('a');
+            
+            // 检查当前图标的点击状态
+            const isFirstClick = !clickStates.get(item);
+            
+            // 第一次点击 - 放大图片
+            e.preventDefault(); // 阻止默认的链接跳转
+            
+            // 获取图片元素
+            const img = item.querySelector('img');
+            if (img) {
+                // 创建图片预览
+                currentPreview = createImagePreview(img.src);
+                
+                // 更新点击状态
+                clickStates.set(item, true);
+                
+                // 为预览容器添加点击事件，点击预览区域以外的地方关闭预览
+                currentPreview.container.addEventListener('click', function(e) {
+                    if (e.target === currentPreview.container) {
+                        removeImagePreview();
+                        clickStates.set(item, false);
+                    }
+                });
+                
+                // 为预览图片添加点击事件，点击预览图片时跳转到对应的网页
+                currentPreview.image.addEventListener('click', function() {
+                    // 先移除预览
+                    removeImagePreview();
+                    
+                    // 如果有父级<a>标签，跳转到对应链接
+                    if (parentLink && parentLink.href) {
+                        window.location.href = parentLink.href;
+                    }
+                    clickStates.set(item, false);
+                });
+            }
+        });
+        
+        // 添加触摸事件支持（移动端）
+        item.addEventListener('touchstart', function(e) {
+            // 获取父级<a>标签
+            const parentLink = item.closest('a');
+            
+            // 检查当前图标的点击状态
+            const isFirstClick = !clickStates.get(item);
+            
+            // 第一次点击 - 放大图片
+            e.preventDefault(); // 阻止默认的链接跳转
+            
+            // 获取图片元素
+            const img = item.querySelector('img');
+            if (img) {
+                // 创建图片预览
+                currentPreview = createImagePreview(img.src);
+                
+                // 更新点击状态
+                clickStates.set(item, true);
+                
+                // 为预览容器添加触摸事件，点击预览区域以外的地方关闭预览
+                currentPreview.container.addEventListener('touchstart', function(e) {
+                    if (e.target === currentPreview.container) {
+                        removeImagePreview();
+                        clickStates.set(item, false);
+                    }
+                });
+                
+                // 为预览图片添加触摸事件，点击预览图片时跳转到对应的网页
+                currentPreview.image.addEventListener('touchstart', function() {
+                    // 先移除预览
+                    removeImagePreview();
+                    
+                    // 如果有父级<a>标签，跳转到对应链接
+                    if (parentLink && parentLink.href) {
+                        setTimeout(() => {
+                            window.location.href = parentLink.href;
+                        }, 100); // 小延迟确保用户体验
+                    }
+                    clickStates.set(item, false);
+                });
             }
         });
     });
