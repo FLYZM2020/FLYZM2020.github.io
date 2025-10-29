@@ -124,9 +124,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 先移除预览
                     removeImagePreview();
                     
-                    // 如果有父级<a>标签，跳转到对应链接
+                    // 如果有父级<a>标签，在新标签页跳转到对应链接
                     if (parentLink && parentLink.href) {
-                        window.location.href = parentLink.href;
+                        window.open(parentLink.href, '_blank');
                     }
                     clickStates.set(item, false);
                 });
@@ -166,10 +166,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 先移除预览
                     removeImagePreview();
                     
-                    // 如果有父级<a>标签，跳转到对应链接
+                    // 如果有父级<a>标签，在新标签页跳转到对应链接
                     if (parentLink && parentLink.href) {
                         setTimeout(() => {
-                            window.location.href = parentLink.href;
+                            window.open(parentLink.href, '_blank');
                         }, 100); // 小延迟确保用户体验
                     }
                     clickStates.set(item, false);

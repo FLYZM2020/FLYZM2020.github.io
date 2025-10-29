@@ -77,6 +77,105 @@ h1 {
     font-weight: bold; /* 字体粗细 - 加粗显示 */
 }
 
+/* 搜索表单样式 - 水平居中搜索框 */
+.search-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 60px;
+    width: 100%;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 15px;
+    /* background: rgba(255, 255, 255, 0.8); */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 搜索表单内部表格样式 */
+.search-form table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* 搜索输入框样式优化 */
+.search-form input[type="text"] {
+    width: 400px;
+    padding: 12px 20px;
+    font-size: 18px;
+    /* border: 2px solid #ddd; */
+    border-radius: 8px 0 0 8px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+/* 搜索输入框聚焦效果 */
+.search-form input[type="text"]:focus {
+    border-color: #65ced3;
+    box-shadow: 0 0 0 3px rgba(101, 206, 211, 0.1);
+}
+
+/* 搜索按钮样式优化 */
+.search-form input[type="submit"] {
+    padding: 12px 30px;
+    font-size: 18px;
+    background-color: #65ced3;
+    color: white;
+    border: none;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+/* 搜索按钮悬停效果 */
+.search-form input[type="submit"]:hover {
+    background-color: #54b4ba;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(101, 206, 211, 0.3);
+}
+
+/* 百度Logo样式调整 */
+.search-form img {
+    vertical-align: middle;
+    margin-right: 15px;
+    width: 90px;
+    height: auto;
+    transition: transform 0.3s ease;
+}
+
+.search-form img:hover {
+    transform: scale(1.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .search-form {
+        max-width: 90%;
+        padding: 12px;
+    }
+    
+    .search-form input[type="text"] {
+        width: 250px;
+        font-size: 16px;
+        padding: 10px 15px;
+    }
+    
+    .search-form input[type="submit"] {
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+    
+    .search-form img {
+        width: 35px;
+        margin-right: 10px;
+    }
+}
+
 /* 网格布局 - 用于组织和排列图标项的布局方式 */
 .grid {
     display: grid; /* 使用网格布局 */
