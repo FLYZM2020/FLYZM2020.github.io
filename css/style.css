@@ -107,7 +107,7 @@ h1 {
     width: 400px;
     padding: 12px 20px;
     font-size: 18px;
-    /* border: 2px solid #ddd; */
+    border: 2px solid #ddd;
     border-radius: 8px 0 0 8px;
     outline: none;
     transition: all 0.3s ease;
