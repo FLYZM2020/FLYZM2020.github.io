@@ -197,6 +197,9 @@ const frameCount = 100;
 // 当前正在显示的图片对象
 let currentImage = null;
 
+// 标志变量：跟踪div-canvas是否已经隐藏
+let canvasHidden = false;
+
 // 根据索引生成图片URL的函数
 // 该函数接收一个索引值，返回对应的图片URL路径
 const currentFrame = (index) => {
@@ -333,6 +336,11 @@ const container = document.querySelector('.container');
 // 添加窗口滚动事件监听器
 // 当用户滚动页面时，根据滚动位置更新canvas上显示的图片
 window.addEventListener("scroll", () => {
+  // 检查div-canvas是否已经隐藏，如果已经隐藏则不再执行图片更新逻辑
+  if (canvasHidden) {
+    return;
+  }
+  
   // 获取当前页面滚动距离（从页面顶部到当前视口顶部的距离）
   const scrollTop = html.scrollTop;
   
@@ -377,6 +385,9 @@ window.addEventListener("scroll", () => {
       
       // 设置divCanvas容器的可见性为hidden - 使其完全隐藏且不占用页面布局空间
       divCanvas.style.visibility = 'hidden';
+      
+      // 标记canvas已隐藏，避免后续继续请求图片
+      canvasHidden = true;
     }
     
     // 在canvas滑动结束后隐藏scroll-placeholder元素，使其不再占位
@@ -397,4 +408,5 @@ window.addEventListener("scroll", () => {
 
 // 调用预加载函数 - 在页面加载时预加载所有图片
 // 这确保当用户开始滚动页面时，所有需要显示的图片已经加载完成，提供更流畅的用户体验
+// 注意：当div-canvas隐藏后，将不再进行任何图片请求
 preloadImages();
