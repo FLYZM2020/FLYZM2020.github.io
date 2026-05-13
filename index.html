@@ -528,8 +528,17 @@
       }
 
       getAvailableColors() {
-        const count = this.score < 10 ? 3 : this.score < 30 ? 5 : 7;
+        const count = this.score < 10 ? 3 : this.score < 20 ? 4 : this.score < 35 ? 5 : this.score < 50 ? 6 : 8;
         return COLORS.slice(0, count);
+      }
+
+      getNearbyColors() {
+        const available = this.getAvailableColors();
+        const playerIndex = available.findIndex(c => c.id === this.player.color.id);
+        const playerIdx = playerIndex >= 0 ? playerIndex : 0;
+        const maxDistance = 2;
+        const nearby = available.filter((_, i) => Math.abs(i - playerIdx) <= maxDistance);
+        return nearby.length > 0 ? nearby : available;
       }
 
       getSpeed() {
@@ -556,7 +565,7 @@
           y,
           this.platformWidth(),
           30,
-          randomItem(this.getAvailableColors()).id
+          randomItem(this.getNearbyColors()).id
         );
       }
 
@@ -724,7 +733,16 @@
       }
 
       changePlayerColor() {
-        const choices = this.getAvailableColors();
+        const available = this.getAvailableColors();
+        const currentPlatform = this.player.platform;
+        let platformIndex = 0;
+        if (currentPlatform) {
+          const idx = available.findIndex(c => c.id === currentPlatform.colorId);
+          platformIndex = idx >= 0 ? idx : 0;
+        }
+        const maxDistance = 2;
+        const nearby = available.filter((_, i) => Math.abs(i - platformIndex) <= maxDistance);
+        const choices = nearby.length > 0 ? nearby : available;
         let next = randomItem(choices);
         if (choices.length > 1) {
           while (next.id === this.player.color.id) {
