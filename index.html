@@ -1,151 +1,1144 @@
 <!DOCTYPE html>
-<!-- HTML文档声明和语言设置 -->
 <html lang="zh-CN">
 <head>
-    <!-- 字符编码设置 -->
-    <meta charset="UTF-8">
-    <!-- 视口设置，用于响应式设计 -->
-    <!-- width=device-width: 设置视口宽度为设备宽度 -->
-    <!-- initial-scale=1.0: 设置初始缩放比例为1 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 页面标题 -->
-    <title>图标导航</title>
-    <!-- 引入外部CSS样式文件 -->
-    <link rel="stylesheet" href="./css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color Hopper</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #101426;
+      color: #ffffff;
+      font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      user-select: none;
+      touch-action: none;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #101426;
+    }
+
+    #game-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    #ui-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    #info-bar {
+      position: absolute;
+      top: max(14px, env(safe-area-inset-top));
+      left: 16px;
+      right: 16px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 14px;
+      min-height: 72px;
+      padding: 12px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      background: rgba(11, 15, 29, 0.74);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(14px);
+    }
+
+    .score-display {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 8px 18px;
+      min-width: 0;
+      font-weight: 700;
+    }
+
+    .score-main {
+      font-size: clamp(18px, 2.4vw, 24px);
+    }
+
+    .score-sub {
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .current-color {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-width: 140px;
+      white-space: nowrap;
+    }
+
+    .color-block {
+      width: 30px;
+      height: 30px;
+      flex: 0 0 auto;
+      border: 3px solid rgba(255, 255, 255, 0.72);
+      border-radius: 50%;
+      box-shadow: 0 0 22px currentColor;
+    }
+
+    .color-text {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .action-panel {
+      justify-self: end;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 180px;
+    }
+
+    .status-pill {
+      min-width: 82px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    #shield-indicator {
+      display: none;
+      border: 1px solid rgba(251, 191, 36, 0.54);
+      background: rgba(251, 191, 36, 0.16);
+      color: #ffe08a;
+      box-shadow: 0 0 24px rgba(251, 191, 36, 0.32);
+    }
+
+    #jump-indicator {
+      border: 1px solid rgba(45, 212, 191, 0.5);
+      background: rgba(45, 212, 191, 0.13);
+      color: #99f6e4;
+    }
+
+    #dash-indicator {
+      border: 1px solid rgba(96, 165, 250, 0.5);
+      background: rgba(96, 165, 250, 0.14);
+      color: #bfdbfe;
+    }
+
+    #dash-indicator.cooling {
+      border-color: rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.62);
+    }
+
+    #start-screen,
+    #game-over-screen {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      background:
+        linear-gradient(180deg, rgba(9, 12, 24, 0.78), rgba(9, 12, 24, 0.94)),
+        radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.16), transparent 40%);
+      pointer-events: auto;
+      text-align: center;
+    }
+
+    .screen-title {
+      color: #ffffff;
+      font-size: clamp(46px, 9vw, 88px);
+      font-weight: 900;
+      letter-spacing: 0;
+      line-height: 0.95;
+      text-shadow:
+        4px 4px 0 #ef4444,
+        8px 8px 0 #2563eb,
+        0 22px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    .subtitle {
+      width: min(560px, 92vw);
+      margin: 22px 0 28px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: clamp(15px, 2.2vw, 19px);
+      line-height: 1.75;
+    }
+
+    .btn {
+      min-width: 168px;
+      min-height: 54px;
+      padding: 14px 30px;
+      border: 0;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #ff4f6d, #2f80ff 55%, #21d4a3);
+      color: #ffffff;
+      cursor: pointer;
+      font: inherit;
+      font-size: 20px;
+      font-weight: 900;
+      box-shadow: 0 18px 34px rgba(34, 89, 255, 0.34);
+      transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+    }
+
+    .btn:hover {
+      filter: brightness(1.08);
+      transform: translateY(-2px);
+      box-shadow: 0 22px 42px rgba(34, 89, 255, 0.44);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .instructions {
+      margin-top: 18px;
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .final-score {
+      margin: 24px 0 4px;
+      color: #ffd43b;
+      font-size: clamp(58px, 12vw, 108px);
+      font-weight: 900;
+      line-height: 1;
+      text-shadow: 0 0 28px rgba(255, 212, 59, 0.42);
+    }
+
+    .high-score-text {
+      margin-bottom: 28px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    #flash-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 80ms linear;
+    }
+
+    #countdown-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(7, 10, 20, 0.55);
+      pointer-events: none;
+    }
+
+    .countdown-number {
+      color: #ffffff;
+      font-size: clamp(76px, 18vw, 160px);
+      font-weight: 900;
+      text-shadow: 0 0 54px rgba(255, 255, 255, 0.7);
+      animation: pop 420ms ease-out;
+    }
+
+    .jump-hint {
+      position: absolute;
+      left: 50%;
+      bottom: max(24px, env(safe-area-inset-bottom));
+      z-index: 8;
+      transform: translateX(-50%);
+      width: max-content;
+      max-width: calc(100vw - 32px);
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(10, 14, 26, 0.58);
+      color: rgba(255, 255, 255, 0.74);
+      font-size: 15px;
+      font-weight: 700;
+      text-align: center;
+      animation: breathe 1.8s ease-in-out infinite;
+    }
+
+    .floating-text {
+      position: absolute;
+      z-index: 15;
+      pointer-events: none;
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 900;
+      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+      animation: float-up 820ms ease-out forwards;
+    }
+
+    .shield-text {
+      color: #ffe08a;
+      text-shadow: 0 0 22px rgba(251, 191, 36, 0.82);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @keyframes pop {
+      from {
+        opacity: 0;
+        transform: scale(1.6);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes breathe {
+      0%,
+      100% {
+        opacity: 0.52;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes float-up {
+      from {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(0.95);
+      }
+
+      to {
+        opacity: 0;
+        transform: translate(-50%, -48px) scale(1.08);
+      }
+    }
+
+    @media (max-width: 680px) {
+      #info-bar {
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        padding: 10px 12px;
+      }
+
+      .score-display {
+        gap: 2px 12px;
+      }
+
+      .current-color {
+        justify-content: flex-end;
+        min-width: 0;
+      }
+
+      .color-text {
+        font-size: 14px;
+      }
+
+      #shield-indicator {
+        grid-column: 1 / -1;
+        justify-self: center;
+        min-width: 112px;
+      }
+    }
+  </style>
 </head>
-<!-- 页面主体设置：设置高度为5个视口高度，背景色为黑色 -->
-<!-- 页面主体设置：移除内联样式，使用CSS中定义的样式 -->
 <body>
-    <!-- Canvas元素：用于显示滚动动画效果 -->
-    <div class="div-canvas">        
-        <canvas id="hero-lightpass" class="body-canvas"></canvas>
-    <!-- 图标容器：用于展示所有的图标项 -->
-    </div>
-    
-    <!-- 占位元素，确保container在canvas之后 -->
-    <div class="scroll-placeholder"></div>
-    
-    <!-- 主内容容器 -->
-    <div class="container">
-        <!-- 页面标题 -->
-        <h1>导航页</h1>
-          <!-- 百度搜索 -->
-        <form class="search-form" action="http://www.baidu.com/baidu" target="_blank">
-			<table><tr><td>
-				<input name=tn type=hidden value=baidu>
-				<a href="http://www.baidu.com/" target="_blank">
-					<img src="http://img.baidu.com/img/logo-80px.gif" alt="Baidu" align="bottom" border="0">
-				</a>
-				<input type=text name=word size=30>
-				<input type="submit" value="百度搜索">
-			</td></tr>
-			</table>
-        </form>
-        <!-- 内容 -->
-        <a href="https://www.bilibili.com/" target="_blank">   
-            <div class="grid">
-            <div class="icon-item">
-                <div class="glass-bg"></div>
-                <img src="./jpg/B站3D.png" alt="B站3D">
-                <div class="icon-name">B站</div>
-                <div class="icon-desc">
-                    以《猫和老鼠》里的汤姆和杰瑞为形象，汤姆在B站上发布视频，杰瑞互动，黄色背景活泼，契合B站视频分享的活力感。
-                </div>
-            </div>
-        </a> 
-        <a href="https://passport.meituan.com/account/unitivelogin" target="_blank">    
-            <div class="icon-item">
-                <div class="glass-bg"></div>
-                <img src="./jpg/美团3D.png" alt="美团3D">
-                <div class="icon-name">美团3D</div>
-                <div class="icon-desc">
-                    以《猫和老鼠》里的汤姆和杰瑞为形象，汤姆抱美团箱子，杰瑞互动，黄色背景活泼，契合美团生活服务的活力感。
-                </div>
-            </div>
-        </a>
-        <a href="https://weibo.com/newlogin" target="_blank">    
-            <div class="icon-item">
-                <div class="glass-bg"></div>
-                <img src="./jpg/微博3D.png" alt="微博">
-                <div class="icon-name">微博</div>
-                <div class="icon-desc">
-                    以蓝色为底，融入《猫和老鼠》的汤姆、杰瑞形象，结合类似消息气泡与信号的元素，体现社交互动感。
-                </div>
-            </div>
-        </a>    
-        <a href="https://www.douyin.com/" target="_blank">    
-            <div class="icon-item">
-                <div class="glass-bg"></div>
-                <img src="./jpg/抖音.png" alt="抖音">
-                <div class="icon-name">抖音</div>
-                <div class="icon-desc">
-                    保留抖音标志 “J”，将汤姆和杰瑞置于其中，多彩音符环绕，既显活泼有趣，又呼应抖音音乐、娱乐的属性。
-                </div>
-            </div>
-        </a>    
-        <a href="https://auth.alipay.com/login/index.htm" target="_blank">    
-            <div class="icon-item">
-                <div class="glass-bg"></div>
-                <img src="./jpg/支付宝3D.png" alt="支付宝">
-                <div class="icon-name">支付宝</div>
-                <div class="icon-desc">
-                    以经典蓝色为底色，保留支付宝标志，可爱的杰瑞举着带美元符号的金币 ，传递便捷支付、财富交易的属性。
-                </div>
-            </div>
-        </a>    
-        <a href="https://www.taobao.com/" target="_blank">    
-            <div class="icon-item">
-                <div class="glass-bg"></div>
-                <img src="./jpg/淘宝.png" alt="淘宝">
-                <div class="icon-name">淘宝</div>
-                <div class="icon-desc">
-                    主体采用淘宝经典橙色圆标，汤姆与杰瑞围绕奶酪互动，充满趣味；下方文字点明联名，既展现购物乐趣，又强化品牌印象。
-                </div>
-            </div>
-        </a>    
-        <a href="https://www.baidu.com/" target="_blank">    
-            <div class="icon-item">
-                <div class="glass-bg"></div>
-                <img src="./jpg/百度3D.png" alt="百度">
-                <div class="icon-name">百度</div>
-                <div class="icon-desc">
-                    以黄色为底，融入猫爪轮廓，汤姆和杰瑞置于其中，营造出活泼有趣氛围， 传递出娱乐、互动之感。
-                </div>
-            </div>  
-        </a>    
-        <a href="https://www.zhihu.com/" target="_blank">    
-            <div class="icon-item">
-                <div class="glass-bg"></div>
-                <img src="./jpg/知乎3D.png" alt="知乎">
-                <div class="icon-name">知乎</div>
-                <div class="icon-desc">
-                    汤姆戴着眼镜捧书，杰瑞一同阅读，营造出求知氛围，右上方蓝色气泡中的 “知乎” 字样，强化品牌属性，传递知识交流理念。
-                </div>
-            </div>  
-        </a>    
-        <a href="https://music.163.com/" target="_blank">    
-            <div class="icon-item">
-                <div class="glass-bg"></div>
-                <img src="./jpg/音乐3D.png" alt="音乐">
-                <div class="icon-name">音乐</div>
-                <div class="icon-desc">
-                    灰色的汤姆咧嘴笑，手臂搭着棕色杰瑞，杰瑞手持红色音乐符，神情喜悦。背景有红色音乐符号图标，整体风格可爱欢快。
-                </div>
-            </div>  
-        </a>  
-        <a href="https://weixin.qq.com/" target="_blank">    
-            <div class="icon-item">
-                <div class="glass-bg"></div>
-                <img src="./jpg/微信3D.png" alt="微信">
-                <div class="icon-name">微信</div>
-                <div class="icon-desc">
-                    汤姆是一只灰色的猫，有着黄色的大眼睛、白色的面部，咧嘴大笑，神态活泼。红色对话气泡的设计，符合微信的互动风格。
-                </div>
-            </div>  
-        </a>  
+  <div id="game-container">
+    <canvas id="game-canvas" aria-label="Color Hopper 游戏画面"></canvas>
 
+    <div id="ui-overlay">
+      <div id="info-bar" class="hidden">
+        <div class="score-display">
+          <div class="score-main">分数 <span id="current-score">0</span></div>
+          <div class="score-sub">最高分 <span id="high-score">0</span></div>
+        </div>
+        <div class="current-color" aria-live="polite">
+          <span class="color-text" id="color-name">红色</span>
+          <div class="color-block" id="color-block"></div>
+        </div>
+        <div class="action-panel">
+          <div class="status-pill" id="jump-indicator">连跳 1/1</div>
+          <div class="status-pill" id="dash-indicator">冲刺就绪</div>
+          <div class="status-pill" id="shield-indicator">护盾已就绪</div>
+        </div>
+      </div>
     </div>
 
-    <script src="./js/script.js"></script>
+    <div id="flash-overlay"></div>
+    <div id="countdown-overlay" class="hidden">
+      <div class="countdown-number" id="countdown-number"></div>
+    </div>
+    <div class="jump-hint hidden" id="jump-hint">空格 / 上箭头 / 点击跳跃，Shift / D / 双击屏幕冲刺</div>
+
+    <section id="start-screen">
+      <h1 class="screen-title">Color Hopper</h1>
+      <p class="subtitle">控制发光小球在彩色平台上跳跃。只能落到与当前颜色相同的平台，落地后颜色会立刻变化。</p>
+      <button class="btn" id="start-btn" type="button">开始游戏</button>
+      <p class="instructions">空中可连跳一次，Shift / D / 双击屏幕可向右冲刺。连续正确落地 10 次可获得一次护盾。</p>
+    </section>
+
+    <section id="game-over-screen" class="hidden">
+      <h1 class="screen-title">游戏结束</h1>
+      <div class="final-score" id="final-score">0</div>
+      <div class="high-score-text">最高分：<span id="final-high-score">0</span></div>
+      <button class="btn" id="restart-btn" type="button">再玩一次</button>
+    </section>
+  </div>
+
+  <script>
+    const COLORS = [
+      { id: "red", hex: "#ff4757", glow: "#ff6b7a", name: "红色" },
+      { id: "blue", hex: "#2f80ff", glow: "#7bb0ff", name: "蓝色" },
+      { id: "yellow", hex: "#ffd43b", glow: "#ffe889", name: "黄色" },
+      { id: "green", hex: "#21d48f", glow: "#72f0bf", name: "绿色" },
+      { id: "purple", hex: "#a855f7", glow: "#d8b4fe", name: "紫色" },
+      { id: "cyan", hex: "#00d6d1", glow: "#78f5f1", name: "青色" },
+      { id: "orange", hex: "#ff8a3d", glow: "#ffc28d", name: "橙色" }
+    ];
+
+    const byId = (id) => document.getElementById(id);
+    const randomItem = (items) => items[Math.floor(Math.random() * items.length)];
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+    class Game {
+      constructor() {
+        this.canvas = byId("game-canvas");
+        this.ctx = this.canvas.getContext("2d");
+        this.highScore = Number(localStorage.getItem("colorHopperHighScore") || 0);
+        this.keys = new Set();
+        this.lastTime = 0;
+        this.animationId = 0;
+        this.dpr = 1;
+        this.lastTapTime = 0;
+
+        this.resize();
+        this.bindEvents();
+        this.reset();
+        this.updateUI();
+        this.draw(0);
+      }
+
+      bindEvents() {
+        window.addEventListener("resize", () => {
+          this.resize();
+          if (!this.isPlaying) this.draw(0);
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (["Space", "ArrowUp", "KeyW"].includes(event.code)) {
+            event.preventDefault();
+            this.requestJump();
+          }
+          if (["ShiftLeft", "ShiftRight", "KeyD", "ArrowRight"].includes(event.code)) {
+            event.preventDefault();
+            this.requestDash();
+          }
+        });
+
+        this.canvas.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          const now = performance.now();
+          if (now - this.lastTapTime < 260) {
+            this.lastTapTime = 0;
+            this.requestDash();
+            return;
+          }
+          this.lastTapTime = now;
+          this.requestJump();
+        });
+
+        byId("start-btn").addEventListener("click", () => this.start());
+        byId("restart-btn").addEventListener("click", () => this.start());
+      }
+
+      resize() {
+        this.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = Math.floor(this.width * this.dpr);
+        this.canvas.height = Math.floor(this.height * this.dpr);
+        this.canvas.style.width = `${this.width}px`;
+        this.canvas.style.height = `${this.height}px`;
+        this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+      }
+
+      reset() {
+        cancelAnimationFrame(this.animationId);
+        this.score = 0;
+        this.survivalTime = 0;
+        this.combo = 0;
+        this.hasShield = false;
+        this.isPlaying = false;
+        this.gameOver = false;
+        this.flashOpacity = 0;
+        this.flashColor = "#ffffff";
+        this.shake = 0;
+        this.particles = [];
+        this.platforms = [];
+        this.cameraX = 0;
+        this.player = new Player(this, randomItem(this.getAvailableColors()));
+        this.buildInitialPlatforms();
+      }
+
+      buildInitialPlatforms() {
+        const startY = this.groundBaseY();
+        let x = Math.max(120, this.width * 0.22);
+        this.platforms.push(new Platform(x, startY, this.platformWidth(), 30, this.player.color.id));
+        this.platforms[0].passed = true;
+
+        for (let index = 1; index < 10; index += 1) {
+          const previous = this.platforms[this.platforms.length - 1];
+          this.platforms.push(this.createNextPlatform(previous));
+        }
+
+        const first = this.platforms[0];
+        this.player.x = first.x + first.width * 0.35;
+        this.player.y = first.y - this.player.radius;
+        this.player.platform = first;
+        this.player.onGround = true;
+      }
+
+      platformWidth() {
+        return clamp(this.width * 0.16, 108, 144);
+      }
+
+      groundBaseY() {
+        return clamp(this.height * 0.72, 390, this.height - 110);
+      }
+
+      getAvailableColors() {
+        const count = this.score < 10 ? 3 : this.score < 30 ? 5 : 7;
+        return COLORS.slice(0, count);
+      }
+
+      getSpeed() {
+        return clamp(245 + this.score * 8.5, 245, 520);
+      }
+
+      getGapRange() {
+        const minGap = clamp(125 - this.score * 0.9, 82, 125);
+        const maxGap = clamp(210 - this.score * 1.1, 136, 210);
+        return [minGap, maxGap];
+      }
+
+      createNextPlatform(previous) {
+        const [minGap, maxGap] = this.getGapRange();
+        const gap = minGap + Math.random() * (maxGap - minGap);
+        const heightSwing = clamp(62 + this.score * 0.35, 62, 92);
+        const y = clamp(
+          previous.y + (Math.random() - 0.5) * heightSwing,
+          this.height * 0.46,
+          this.groundBaseY() + 56
+        );
+        return new Platform(
+          previous.x + previous.width + gap,
+          y,
+          this.platformWidth(),
+          30,
+          randomItem(this.getAvailableColors()).id
+        );
+      }
+
+      start() {
+        this.reset();
+        byId("start-screen").classList.add("hidden");
+        byId("game-over-screen").classList.add("hidden");
+        byId("info-bar").classList.remove("hidden");
+        byId("jump-hint").classList.remove("hidden");
+        this.updateUI();
+        this.countdown();
+      }
+
+      countdown() {
+        const overlay = byId("countdown-overlay");
+        const label = byId("countdown-number");
+        overlay.classList.remove("hidden");
+        let value = 3;
+        label.textContent = value;
+
+        const tick = () => {
+          value -= 1;
+          if (value > 0) {
+            label.style.animation = "none";
+            label.offsetHeight;
+            label.style.animation = "";
+            label.textContent = value;
+            setTimeout(tick, 700);
+            return;
+          }
+
+          label.textContent = "GO";
+          setTimeout(() => {
+            overlay.classList.add("hidden");
+            this.isPlaying = true;
+            this.lastTime = performance.now();
+            this.animationId = requestAnimationFrame((time) => this.loop(time));
+          }, 520);
+        };
+
+        setTimeout(tick, 700);
+      }
+
+      requestJump() {
+        if (this.isPlaying) {
+          const didJump = this.player.jump();
+          if (didJump) {
+            this.updateUI();
+          }
+        }
+      }
+
+      requestDash() {
+        if (this.isPlaying) {
+          const didDash = this.player.dash();
+          if (didDash) {
+            this.popText("冲刺", this.player.screenX(), this.player.y - 42, false);
+            this.flash("#60a5fa", 0.18);
+            this.updateUI();
+          }
+        }
+      }
+
+      loop(time) {
+        const dt = Math.min(0.033, (time - this.lastTime) / 1000 || 0);
+        this.lastTime = time;
+        this.update(dt);
+        this.draw(dt);
+
+        if (!this.gameOver) {
+          this.animationId = requestAnimationFrame((nextTime) => this.loop(nextTime));
+        }
+      }
+
+      update(dt) {
+        if (!this.isPlaying) return;
+
+        this.survivalTime += dt;
+        this.player.update(dt);
+        this.cameraX = Math.max(0, this.player.x - this.width * 0.34);
+        this.updateActionStatus();
+
+        while (this.platforms.length && this.platforms[0].x + this.platforms[0].width < this.cameraX - 160) {
+          this.platforms.shift();
+        }
+
+        while (this.platforms[this.platforms.length - 1].x < this.cameraX + this.width + 360) {
+          this.platforms.push(this.createNextPlatform(this.platforms[this.platforms.length - 1]));
+        }
+
+        this.checkLanding();
+        this.updateParticles(dt);
+
+        this.flashOpacity = Math.max(0, this.flashOpacity - dt * 2.4);
+        this.updateFlash();
+        this.shake = Math.max(0, this.shake - dt * 38);
+
+        if (this.player.y > this.height + 90) {
+          this.endGame();
+        }
+      }
+
+      checkLanding() {
+        const player = this.player;
+        if (player.onGround) return;
+        if (player.vy < 0) return;
+
+        let landedPlatform = null;
+        for (const platform of this.platforms) {
+          if (player.lastBottom <= platform.y + 2 &&
+            player.bottom >= platform.y &&
+            player.x + player.radius * 0.72 > platform.x &&
+            player.x - player.radius * 0.72 < platform.x + platform.width) {
+            landedPlatform = platform;
+            break;
+          }
+        }
+
+        if (!landedPlatform) {
+          player.onGround = false;
+          return;
+        }
+
+        if (landedPlatform.colorId !== player.color.id) {
+          if (this.hasShield) {
+            this.hasShield = false;
+            this.combo = 0;
+            this.safeLand(landedPlatform, true);
+            this.popText("护盾抵消", player.screenX(), player.y - 34, true);
+            this.flash("#ffd43b", 0.4);
+            this.updateUI();
+            return;
+          }
+          this.endGame(true);
+          return;
+        }
+
+        this.safeLand(landedPlatform, false);
+        if (!landedPlatform.passed) {
+          landedPlatform.passed = true;
+          const landedColor = player.color;
+          this.score += 1;
+          this.combo += 1;
+          this.popText("+1", player.screenX(), player.y - 36, false);
+          this.spawnBurst(player.x, player.y, landedColor);
+
+          if (this.combo >= 10 && !this.hasShield) {
+            this.hasShield = true;
+            this.combo = 0;
+            this.popText("护盾充能", player.screenX(), player.y - 58, true);
+          }
+
+          this.changePlayerColor();
+          this.flash(landedColor.hex, 0.28);
+          this.updateUI();
+        }
+      }
+
+      safeLand(platform, bounce) {
+        this.player.y = platform.y - this.player.radius;
+        this.player.vy = bounce ? -360 : 0;
+        this.player.onGround = !bounce;
+        this.player.platform = bounce ? null : platform;
+        this.player.jumpsUsed = bounce ? 1 : 0;
+      }
+
+      changePlayerColor() {
+        const choices = this.getAvailableColors();
+        let next = randomItem(choices);
+        if (choices.length > 1) {
+          while (next.id === this.player.color.id) {
+            next = randomItem(choices);
+          }
+        }
+        this.player.color = next;
+      }
+
+      spawnBurst(x, y, color) {
+        for (let i = 0; i < 18; i += 1) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 80 + Math.random() * 220;
+          this.particles.push({
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 70,
+            life: 0.42 + Math.random() * 0.28,
+            maxLife: 0.7,
+            color: color.hex,
+            size: 3 + Math.random() * 4
+          });
+        }
+      }
+
+      spawnDashTrail(x, y, color) {
+        for (let i = 0; i < 16; i += 1) {
+          this.particles.push({
+            x: x - Math.random() * 70,
+            y: y + (Math.random() - 0.5) * 34,
+            vx: -120 - Math.random() * 180,
+            vy: (Math.random() - 0.5) * 80,
+            life: 0.22 + Math.random() * 0.18,
+            maxLife: 0.42,
+            color: i % 2 ? "#bfdbfe" : color.hex,
+            size: 3 + Math.random() * 5
+          });
+        }
+      }
+
+      updateParticles(dt) {
+        for (const particle of this.particles) {
+          particle.life -= dt;
+          particle.x += particle.vx * dt;
+          particle.y += particle.vy * dt;
+          particle.vy += 520 * dt;
+        }
+        this.particles = this.particles.filter((particle) => particle.life > 0);
+      }
+
+      popText(text, x, y, shield) {
+        const node = document.createElement("div");
+        node.className = `floating-text${shield ? " shield-text" : ""}`;
+        node.textContent = text;
+        node.style.left = `${x}px`;
+        node.style.top = `${y}px`;
+        byId("game-container").appendChild(node);
+        setTimeout(() => node.remove(), 900);
+      }
+
+      flash(color, opacity) {
+        this.flashColor = color;
+        this.flashOpacity = opacity;
+        this.updateFlash();
+      }
+
+      updateFlash() {
+        const overlay = byId("flash-overlay");
+        overlay.style.background = this.flashColor;
+        overlay.style.opacity = this.flashOpacity.toFixed(3);
+      }
+
+      updateUI() {
+        byId("current-score").textContent = this.score;
+        byId("high-score").textContent = this.highScore;
+        byId("color-name").textContent = this.player.color.name;
+        const colorBlock = byId("color-block");
+        colorBlock.style.backgroundColor = this.player.color.hex;
+        colorBlock.style.color = this.player.color.hex;
+        byId("shield-indicator").style.display = this.hasShield ? "block" : "none";
+        this.updateActionStatus();
+      }
+
+      updateActionStatus() {
+        const remainingJumps = this.player.onGround
+          ? 1
+          : Math.max(0, this.player.maxJumps - this.player.jumpsUsed);
+        byId("jump-indicator").textContent = `连跳 ${remainingJumps}/1`;
+
+        const dashIndicator = byId("dash-indicator");
+        if (this.player.dashCooldown <= 0) {
+          dashIndicator.textContent = "冲刺就绪";
+          dashIndicator.classList.remove("cooling");
+        } else {
+          dashIndicator.textContent = `冲刺 ${this.player.dashCooldown.toFixed(1)}s`;
+          dashIndicator.classList.add("cooling");
+        }
+      }
+
+      endGame(wrongColor = false) {
+        if (this.gameOver) return;
+        this.isPlaying = false;
+        this.gameOver = true;
+        this.shake = wrongColor ? 24 : 16;
+        this.spawnBreakParticles();
+        this.flash("#111827", 0.5);
+
+        if (this.score > this.highScore) {
+          this.highScore = this.score;
+          localStorage.setItem("colorHopperHighScore", String(this.highScore));
+        }
+
+        setTimeout(() => {
+          byId("info-bar").classList.add("hidden");
+          byId("jump-hint").classList.add("hidden");
+          byId("final-score").textContent = this.score;
+          byId("final-high-score").textContent = this.highScore;
+          byId("game-over-screen").classList.remove("hidden");
+        }, 620);
+      }
+
+      spawnBreakParticles() {
+        const color = this.player.color;
+        for (let i = 0; i < 34; i += 1) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 120 + Math.random() * 320;
+          this.particles.push({
+            x: this.player.x,
+            y: this.player.y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 0.75 + Math.random() * 0.45,
+            maxLife: 1.2,
+            color: color.hex,
+            size: 4 + Math.random() * 7
+          });
+        }
+      }
+
+      draw(dt) {
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.clearRect(0, 0, this.width, this.height);
+
+        if (this.shake > 0) {
+          ctx.translate((Math.random() - 0.5) * this.shake, (Math.random() - 0.5) * this.shake);
+        }
+
+        this.drawBackground(ctx);
+        this.drawDepthLines(ctx);
+
+        ctx.save();
+        ctx.translate(-this.cameraX, 0);
+        for (const platform of this.platforms) {
+          platform.draw(ctx);
+        }
+        this.drawParticles(ctx);
+        this.player.draw(ctx);
+        ctx.restore();
+
+        ctx.restore();
+      }
+
+      drawBackground(ctx) {
+        const warmth = Math.min(this.score / 45, 1);
+        const topHue = 215 - warmth * 170;
+        const bottomHue = 255 - warmth * 220;
+        const gradient = ctx.createLinearGradient(0, 0, 0, this.height);
+        gradient.addColorStop(0, `hsl(${topHue}, 72%, ${26 + warmth * 8}%)`);
+        gradient.addColorStop(0.62, `hsl(${bottomHue}, 58%, ${18 + warmth * 7}%)`);
+        gradient.addColorStop(1, "#080a13");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, this.width, this.height);
+
+        ctx.globalAlpha = 0.16;
+        for (let i = 0; i < 9; i += 1) {
+          const x = ((i * 211 - this.cameraX * 0.08) % (this.width + 240)) - 120;
+          const y = 90 + (i % 4) * 96;
+          ctx.fillStyle = i % 2 ? "#ffffff" : COLORS[i % COLORS.length].hex;
+          ctx.beginPath();
+          ctx.arc(x, y, 34 + (i % 3) * 15, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      drawDepthLines(ctx) {
+        ctx.save();
+        ctx.globalAlpha = 0.12;
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1;
+        const spacing = 72;
+        const offset = -((this.cameraX * 0.22) % spacing);
+        for (let x = offset; x < this.width + spacing; x += spacing) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x - this.height * 0.32, this.height);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      drawParticles(ctx) {
+        for (const particle of this.particles) {
+          const alpha = clamp(particle.life / particle.maxLife, 0, 1);
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = particle.color;
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, particle.size * alpha, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    class Player {
+      constructor(game, color) {
+        this.game = game;
+        this.color = color;
+        this.radius = clamp(game.width * 0.024, 18, 24);
+        this.x = 0;
+        this.y = 0;
+        this.vy = 0;
+        this.onGround = false;
+        this.platform = null;
+        this.lastBottom = 0;
+        this.maxJumps = 2;
+        this.jumpsUsed = 0;
+        this.dashCooldown = 0;
+        this.dashCooldownMax = 1.35;
+        this.dashTimer = 0;
+        this.dashDuration = 0.18;
+        this.dashSpeed = 560;
+      }
+
+      get bottom() {
+        return this.y + this.radius;
+      }
+
+      screenX() {
+        return this.x - this.game.cameraX;
+      }
+
+      jump() {
+        if (!this.onGround && this.jumpsUsed >= this.maxJumps) return false;
+        this.vy = -570;
+        this.onGround = false;
+        this.platform = null;
+        this.jumpsUsed += 1;
+        if (this.jumpsUsed > 1) {
+          this.game.spawnBurst(this.x, this.y + this.radius * 0.4, this.color);
+          this.game.popText("连跳", this.screenX(), this.y - 42, false);
+        }
+        return true;
+      }
+
+      dash() {
+        if (this.dashCooldown > 0) return false;
+        this.dashTimer = this.dashDuration;
+        this.dashCooldown = this.dashCooldownMax;
+        this.vy = Math.min(this.vy, -80);
+        this.onGround = false;
+        this.platform = null;
+        this.game.spawnDashTrail(this.x, this.y, this.color);
+        return true;
+      }
+
+      get dashActive() {
+        return this.dashTimer > 0;
+      }
+
+      update(dt) {
+        this.lastBottom = this.bottom;
+        this.dashCooldown = Math.max(0, this.dashCooldown - dt);
+        this.dashTimer = Math.max(0, this.dashTimer - dt);
+        const dashBoost = this.dashActive ? this.dashSpeed : 0;
+        this.x += (this.game.getSpeed() + dashBoost) * dt;
+
+        if (this.onGround && this.platform) {
+          this.y = this.platform.y - this.radius;
+          if (this.x - this.radius > this.platform.x + this.platform.width) {
+            this.onGround = false;
+            this.platform = null;
+            this.jumpsUsed = 1;
+          }
+          return;
+        }
+
+        this.vy += 1420 * dt;
+        this.vy = Math.min(this.vy, 880);
+        this.y += this.vy * dt;
+      }
+
+      draw(ctx) {
+        const color = this.color;
+
+        if (this.game.gameOver) {
+          return;
+        }
+
+        ctx.save();
+        if (this.dashActive) {
+          ctx.globalAlpha = 0.34;
+          ctx.shadowColor = color.glow;
+          ctx.shadowBlur = 22;
+          for (let i = 1; i <= 3; i += 1) {
+            ctx.fillStyle = color.hex;
+            ctx.beginPath();
+            ctx.ellipse(
+              this.x - i * 18,
+              this.y,
+              this.radius * (1.1 - i * 0.12),
+              this.radius * (0.78 - i * 0.08),
+              0,
+              0,
+              Math.PI * 2
+            );
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+        }
+
+        ctx.shadowColor = color.glow;
+        ctx.shadowBlur = 32;
+        const gradient = ctx.createRadialGradient(
+          this.x - this.radius * 0.35,
+          this.y - this.radius * 0.4,
+          0,
+          this.x,
+          this.y,
+          this.radius
+        );
+        gradient.addColorStop(0, "#ffffff");
+        gradient.addColorStop(0.32, color.glow);
+        gradient.addColorStop(1, color.hex);
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        if (this.dashActive) {
+          ctx.ellipse(this.x, this.y, this.radius * 1.25, this.radius * 0.82, 0, 0, Math.PI * 2);
+        } else {
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        }
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.72)";
+        ctx.beginPath();
+        ctx.arc(this.x - this.radius * 0.3, this.y - this.radius * 0.34, this.radius * 0.18, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (this.game.hasShield) {
+          const pulse = 1 + Math.sin(performance.now() / 150) * 0.04;
+          ctx.strokeStyle = "#ffe08a";
+          ctx.lineWidth = 3;
+          ctx.shadowColor = "#ffd43b";
+          ctx.shadowBlur = 20;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, (this.radius + 11) * pulse, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+    }
+
+    class Platform {
+      constructor(x, y, width, height, colorId) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.colorId = colorId;
+        this.passed = false;
+      }
+
+      get color() {
+        return COLORS.find((color) => color.id === this.colorId) || COLORS[0];
+      }
+
+      draw(ctx) {
+        const color = this.color;
+        const radius = 12;
+        ctx.save();
+        ctx.shadowColor = color.glow;
+        ctx.shadowBlur = 16;
+        ctx.shadowOffsetY = 5;
+
+        ctx.beginPath();
+        ctx.roundRect(this.x, this.y, this.width, this.height, radius);
+        const gradient = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.height);
+        gradient.addColorStop(0, color.glow);
+        gradient.addColorStop(0.52, color.hex);
+        gradient.addColorStop(1, shade(color.hex, -36));
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.34)";
+        ctx.beginPath();
+        ctx.roundRect(this.x + 8, this.y + 5, this.width - 16, 6, 3);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function shade(hex, amount) {
+      const value = Number.parseInt(hex.slice(1), 16);
+      const r = clamp((value >> 16) + amount, 0, 255);
+      const g = clamp(((value >> 8) & 255) + amount, 0, 255);
+      const b = clamp((value & 255) + amount, 0, 255);
+      return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+    }
+
+    window.colorHopper = new Game();
+  </script>
 </body>
 </html>

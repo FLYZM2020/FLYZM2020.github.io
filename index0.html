@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<!-- HTML文档声明和语言设置 -->
+<html lang="zh-CN">
+<head>
+    <!-- 字符编码设置 -->
+    <meta charset="UTF-8">
+    <!-- 视口设置，用于响应式设计 -->
+    <!-- width=device-width: 设置视口宽度为设备宽度 -->
+    <!-- initial-scale=1.0: 设置初始缩放比例为1 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 页面标题 -->
+    <title>图标导航</title>
+    <!-- 引入外部CSS样式文件 -->
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<!-- 页面主体设置：设置高度为5个视口高度，背景色为黑色 -->
+<!-- 页面主体设置：移除内联样式，使用CSS中定义的样式 -->
+<body>
+    <!-- Canvas元素：用于显示滚动动画效果 -->
+    <div class="div-canvas">        
+        <canvas id="hero-lightpass" class="body-canvas"></canvas>
+    <!-- 图标容器：用于展示所有的图标项 -->
+    </div>
+    
+    <!-- 占位元素，确保container在canvas之后 -->
+    <div class="scroll-placeholder"></div>
+    
+    <!-- 主内容容器 -->
+    <div class="container">
+        <!-- 页面标题 -->
+        <h1>导航页</h1>
+          <!-- 百度搜索 -->
+        <form class="search-form" action="http://www.baidu.com/baidu" target="_blank">
+			<table><tr><td>
+				<input name=tn type=hidden value=baidu>
+				<a href="http://www.baidu.com/" target="_blank">
+					<img src="http://img.baidu.com/img/logo-80px.gif" alt="Baidu" align="bottom" border="0">
+				</a>
+				<input type=text name=word size=30>
+				<input type="submit" value="百度搜索">
+			</td></tr>
+			</table>
+        </form>
+        <!-- 内容 -->
+        <a href="https://www.bilibili.com/" target="_blank">   
+            <div class="grid">
+            <div class="icon-item">
+                <div class="glass-bg"></div>
+                <img src="./jpg/B站3D.png" alt="B站3D">
+                <div class="icon-name">B站</div>
+                <div class="icon-desc">
+                    以《猫和老鼠》里的汤姆和杰瑞为形象，汤姆在B站上发布视频，杰瑞互动，黄色背景活泼，契合B站视频分享的活力感。
+                </div>
+            </div>
+        </a> 
+        <a href="https://passport.meituan.com/account/unitivelogin" target="_blank">    
+            <div class="icon-item">
+                <div class="glass-bg"></div>
+                <img src="./jpg/美团3D.png" alt="美团3D">
+                <div class="icon-name">美团3D</div>
+                <div class="icon-desc">
+                    以《猫和老鼠》里的汤姆和杰瑞为形象，汤姆抱美团箱子，杰瑞互动，黄色背景活泼，契合美团生活服务的活力感。
+                </div>
+            </div>
+        </a>
+        <a href="https://weibo.com/newlogin" target="_blank">    
+            <div class="icon-item">
+                <div class="glass-bg"></div>
+                <img src="./jpg/微博3D.png" alt="微博">
+                <div class="icon-name">微博</div>
+                <div class="icon-desc">
+                    以蓝色为底，融入《猫和老鼠》的汤姆、杰瑞形象，结合类似消息气泡与信号的元素，体现社交互动感。
+                </div>
+            </div>
+        </a>    
+        <a href="https://www.douyin.com/" target="_blank">    
+            <div class="icon-item">
+                <div class="glass-bg"></div>
+                <img src="./jpg/抖音.png" alt="抖音">
+                <div class="icon-name">抖音</div>
+                <div class="icon-desc">
+                    保留抖音标志 “J”，将汤姆和杰瑞置于其中，多彩音符环绕，既显活泼有趣，又呼应抖音音乐、娱乐的属性。
+                </div>
+            </div>
+        </a>    
+        <a href="https://auth.alipay.com/login/index.htm" target="_blank">    
+            <div class="icon-item">
+                <div class="glass-bg"></div>
+                <img src="./jpg/支付宝3D.png" alt="支付宝">
+                <div class="icon-name">支付宝</div>
+                <div class="icon-desc">
+                    以经典蓝色为底色，保留支付宝标志，可爱的杰瑞举着带美元符号的金币 ，传递便捷支付、财富交易的属性。
+                </div>
+            </div>
+        </a>    
+        <a href="https://www.taobao.com/" target="_blank">    
+            <div class="icon-item">
+                <div class="glass-bg"></div>
+                <img src="./jpg/淘宝.png" alt="淘宝">
+                <div class="icon-name">淘宝</div>
+                <div class="icon-desc">
+                    主体采用淘宝经典橙色圆标，汤姆与杰瑞围绕奶酪互动，充满趣味；下方文字点明联名，既展现购物乐趣，又强化品牌印象。
+                </div>
+            </div>
+        </a>    
+        <a href="https://www.baidu.com/" target="_blank">    
+            <div class="icon-item">
+                <div class="glass-bg"></div>
+                <img src="./jpg/百度3D.png" alt="百度">
+                <div class="icon-name">百度</div>
+                <div class="icon-desc">
+                    以黄色为底，融入猫爪轮廓，汤姆和杰瑞置于其中，营造出活泼有趣氛围， 传递出娱乐、互动之感。
+                </div>
+            </div>  
+        </a>    
+        <a href="https://www.zhihu.com/" target="_blank">    
+            <div class="icon-item">
+                <div class="glass-bg"></div>
+                <img src="./jpg/知乎3D.png" alt="知乎">
+                <div class="icon-name">知乎</div>
+                <div class="icon-desc">
+                    汤姆戴着眼镜捧书，杰瑞一同阅读，营造出求知氛围，右上方蓝色气泡中的 “知乎” 字样，强化品牌属性，传递知识交流理念。
+                </div>
+            </div>  
+        </a>    
+        <a href="https://music.163.com/" target="_blank">    
+            <div class="icon-item">
+                <div class="glass-bg"></div>
+                <img src="./jpg/音乐3D.png" alt="音乐">
+                <div class="icon-name">音乐</div>
+                <div class="icon-desc">
+                    灰色的汤姆咧嘴笑，手臂搭着棕色杰瑞，杰瑞手持红色音乐符，神情喜悦。背景有红色音乐符号图标，整体风格可爱欢快。
+                </div>
+            </div>  
+        </a>  
+        <a href="https://weixin.qq.com/" target="_blank">    
+            <div class="icon-item">
+                <div class="glass-bg"></div>
+                <img src="./jpg/微信3D.png" alt="微信">
+                <div class="icon-name">微信</div>
+                <div class="icon-desc">
+                    汤姆是一只灰色的猫，有着黄色的大眼睛、白色的面部，咧嘴大笑，神态活泼。红色对话气泡的设计，符合微信的互动风格。
+                </div>
+            </div>  
+        </a>  
+
+    </div>
+
+    <script src="./js/script.js"></script>
+</body>
+</html>
